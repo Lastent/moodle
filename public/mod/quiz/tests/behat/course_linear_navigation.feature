@@ -54,6 +54,27 @@ Feature: Display the course linear navigation in the quiz pages
     And I press "Re-attempt quiz"
     And the course linear navigation should not be visible
 
+  @javascript @quizaccess_seb
+  Scenario: The course linear navigation is not shown when the quiz requires Safe Exam Browser
+    Given the following "activity" exists:
+      | activity                   | quiz   |
+      | course                     | C1     |
+      | idnumber                   | quiz2  |
+      | name                       | Quiz 2 |
+      | seb_requiresafeexambrowser | 1      |
+    And the following "question categories" exist:
+      | contextlevel    | reference | name             |
+      | Activity module | quiz2     | Quiz 2 questions |
+    And the following "questions" exist:
+      | questioncategory | qtype     | name | questiontext   |
+      | Quiz 2 questions | truefalse | TF5  | Fifth question |
+    And quiz "Quiz 2" contains the following questions:
+      | question | page |
+      | TF5      | 1    |
+    When I am on the "Quiz 2" "quiz activity" page logged in as "student"
+    Then I should see "Launch Safe Exam Browser"
+    And the course linear navigation should not be visible
+
   @javascript
   Scenario: As a teacher I should see the course linear navigation in quiz pages that allow it
     Given user "student" has attempted "Quiz 1" with responses:
