@@ -283,7 +283,7 @@
                                                         href="{{{urls.reply}}}"
                                                         class="fw-medium"
                                                         data-post-id="{{id}}"
-                                                        data-action="collapsible-link"
+                                                        {{^useadvancedpostingform}}data-action="collapsible-link"{{/useadvancedpostingform}}
                                                         data-can-reply-privately="{{canreplyprivately}}"
                                                         title="{{#str}} reply, mod_forum {{/str}}"
                                                         role="menuitem"

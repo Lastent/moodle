@@ -67,6 +67,13 @@ class user_edit_forum_form extends moodleform {
         $mform->addElement('select', 'useexperimentalui', get_string('useexperimentalui', 'mod_forum'), $choices);
         $mform->setDefault('useexperimentalui', '0');
 
+        $postingformoptions = \mod_forum\posting_form_preference::get_options();
+        $sitedefault = $postingformoptions[\mod_forum\posting_form_preference::get_site_default()];
+        $choices = ['' => get_string('sitedefaultspecified', 'core', $sitedefault)] + $postingformoptions;
+        $mform->addElement('select', 'postingform', get_string('postingform', 'mod_forum'), $choices);
+        $mform->addHelpButton('postingform', 'postingform', 'mod_forum');
+        $mform->setDefault('postingform', '');
+
         if (!empty($CFG->forum_trackreadposts)) {
             $mform->addElement('header', 'trackreadposts', get_string('trackreadposts_header', 'mod_forum'));
             $choices = array();

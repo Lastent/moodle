@@ -134,6 +134,7 @@ $string['configmanydiscussions'] = 'Maximum number of discussions shown in a for
 $string['configmaxattachments'] = 'Default maximum number of attachments allowed per post.';
 $string['configmaxbytes'] = 'Default maximum size for all forum attachments on the site (subject to course limits and other local settings)';
 $string['configoldpostdays'] = 'Number of days old any post is considered read.';
+$string['configpostingform'] = 'The form that opens by default when someone adds a discussion topic or replies to a post. Users can choose a different form in their forum preferences.';
 $string['configreplytouser'] = 'When a forum post is mailed out, should it contain the user\'s email address so that recipients can reply personally rather than via the forum? Even if set to \'Yes\' users can choose in their profile to keep their email address secret.';
 $string['configrsstypedefault'] = 'If RSS feeds are enabled, sets the default activity type.';
 $string['configrssarticlesdefault'] = 'If RSS feeds are enabled, sets the default number of articles (either discussions or posts).';
@@ -528,6 +529,13 @@ $string['postbymailsuccess'] = 'Your reply "{$a->subject}" was successfully post
 $string['postbymailsuccess_html'] = 'Your reply <a href="{$a->discussionurl}">{$a->subject}</a> was successfully posted.';
 $string['postbyuser'] = '{$a->post} by {$a->user}';
 $string['postincontext'] = 'See this post in context';
+$string['postingform'] = 'Posting form';
+$string['postingform_help'] = 'Which form opens when you add a discussion topic or reply to a post.
+
+* Quick form in the page: a short form with just the subject and message, shown directly in the forum page. You can still switch to the advanced form with the "Advanced" button.
+* Advanced form with all options: opens on its own page with every posting option, such as attachments, tags and discussion subscription.';
+$string['postingformadvanced'] = 'Advanced form with all options';
+$string['postingformquick'] = 'Quick form in the page';
 $string['postmailinfo'] = 'This is a copy of a message posted in {$a}.';
 $string['postmailnow'] = '<p>This post will be mailed out immediately to all forum subscribers.</p>';
 $string['postmailreply'] = 'To reply click on this link: {$a}';
@@ -594,6 +602,7 @@ $string['privacy:metadata:forum_track_prefs:forumid'] = 'The forum that has read
 $string['privacy:metadata:forum_track_prefs:userid'] = 'The ID of the user that this forum tracking preference relates to.';
 $string['privacy:metadata:preference:autosubscribe'] = 'Whether to subscribe to discussions when replying to posts within them.';
 $string['privacy:metadata:preference:forum_discussionlistsortorder'] = 'The preferred sorting order of the discussions list';
+$string['privacy:metadata:preference:forum_postingform'] = 'Whether to open the quick form in the page or the advanced form when posting.';
 $string['privacy:metadata:preference:maildigest'] = 'The site-wide mail digest preference';
 $string['privacy:metadata:preference:markasreadonnotification'] = 'Whether to mark forum posts as read when receiving them as messages.';
 $string['privacy:metadata:preference:trackforums'] = 'Whether to enable read tracking.';

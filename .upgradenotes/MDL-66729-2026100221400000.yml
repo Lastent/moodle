@@ -1,0 +1,19 @@
+issueNumber: MDL-66729
+notes:
+  mod_forum:
+    - message: >-
+        The new `\mod_forum\posting_form_preference` class tells whether a user
+        gets the quick in-page form or the advanced form when adding a
+        discussion or replying to a post, based on the new
+        `mod_forum/postingform` admin setting and `forum_postingform` user
+        preference. Call `posting_form_preference::use_advanced_form()` to check
+        it.
+
+
+        The `useadvancedpostingform` template context variable is now passed to
+        `mod_forum/discussion_list`, `mod_forum/forum_new_discussion_actionbar`
+        and the templates that render posts. When it is true, the "Add discussion
+        topic" button and the "Reply" links open the advanced form instead of the
+        in-page form. Themes that override these templates should handle it in
+        the same way.
+      type: improved

@@ -29,6 +29,14 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configselect('forum_displaymode', get_string('displaymode', 'forum'),
                        get_string('configdisplaymode', 'forum'), FORUM_MODE_NESTED, forum_get_layout_modes()));
 
+    $settings->add(new admin_setting_configselect(
+        'mod_forum/postingform',
+        get_string('postingform', 'forum'),
+        get_string('configpostingform', 'forum'),
+        \mod_forum\posting_form_preference::QUICK,
+        \mod_forum\posting_form_preference::get_options(),
+    ));
+
     // Less non-HTML characters than this is short
     $settings->add(new admin_setting_configtext('forum_shortpost', get_string('shortpost', 'forum'),
                        get_string('configshortpost', 'forum'), 300, PARAM_INT));

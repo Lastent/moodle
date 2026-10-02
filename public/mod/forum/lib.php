@@ -6848,6 +6848,16 @@ function mod_forum_user_preferences() {
         'default' => false,
         'type' => PARAM_BOOL
     ];
+    // Null removes the preference, so the user follows the site default again.
+    $preferences[\mod_forum\posting_form_preference::PREFERENCE] = [
+        'null' => NULL_ALLOWED,
+        'default' => \mod_forum\posting_form_preference::get_site_default(),
+        'type' => PARAM_ALPHA,
+        'choices' => [
+            \mod_forum\posting_form_preference::QUICK,
+            \mod_forum\posting_form_preference::ADVANCED,
+        ],
+    ];
 
     return $preferences;
 }

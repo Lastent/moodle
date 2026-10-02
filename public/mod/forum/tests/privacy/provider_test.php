@@ -2015,6 +2015,7 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         set_user_preference('markasreadonnotification', 0, $user);
         set_user_preference('forum_discussionlistsortorder', \mod_forum\local\vaults\discussion_list::SORTORDER_STARTER_ASC,
             $user);
+        set_user_preference('forum_postingform', \mod_forum\posting_form_preference::ADVANCED, $user);
 
         // Export test users preferences.
         provider::export_user_preferences($user->id);
@@ -2048,5 +2049,17 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
             'value' => \mod_forum\local\vaults\discussion_list::SORTORDER_STARTER_ASC,
             'description' => get_string('discussionlistsortbystarterasc', 'mod_forum'),
         ], $preferences['forum_discussionlistsortorder']);
+
+        $this->assertEquals((object) [
+            'value' => \mod_forum\posting_form_preference::ADVANCED,
+            'description' => get_string('postingformadvanced', 'mod_forum'),
+        ], $preferences['forum_postingform']);
+
+        // The posting form is only exported when the user has chosen one.
+        \core_privacy\local\request\writer::reset();
+        $otheruser = $this->getDataGenerator()->create_user();
+        provider::export_user_preferences($otheruser->id);
+        $writer = \core_privacy\local\request\writer::with_context(\context_system::instance());
+        $this->assertArrayNotHasKey('forum_postingform', (array) $writer->get_user_preferences('mod_forum'));
     }
 }

@@ -53,11 +53,20 @@
     <div class="py-3">
         {{#forum.capabilities.create}}
             {{#enablediscussioncreation}}
-                <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseAddForm">
-                    {{$discussion_create_text}}
-                        {{#str}}addanewdiscussion, forum{{/str}}
-                    {{/discussion_create_text}}
-                </a>
+                {{#useadvancedpostingform}}
+                    <a class="btn btn-primary" href="{{forum.urls.create}}">
+                        {{$discussion_create_text}}
+                            {{#str}}addanewdiscussion, forum{{/str}}
+                        {{/discussion_create_text}}
+                    </a>
+                {{/useadvancedpostingform}}
+                {{^useadvancedpostingform}}
+                    <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseAddForm">
+                        {{$discussion_create_text}}
+                            {{#str}}addanewdiscussion, forum{{/str}}
+                        {{/discussion_create_text}}
+                    </a>
+                {{/useadvancedpostingform}}
             {{/enablediscussioncreation}}
         {{/forum.capabilities.create}}
         {{^forum.capabilities.create}}
@@ -83,9 +92,11 @@
         {{/forum.capabilities.grade}}
     </div>
     {{#forum.capabilities.create}}
-        <div class="collapse mt-3 pb-3" id="collapseAddForm">
-            {{{newdiscussionhtml}}}
-        </div>
+        {{^useadvancedpostingform}}
+            <div class="collapse mt-3 pb-3" id="collapseAddForm">
+                {{{newdiscussionhtml}}}
+            </div>
+        {{/useadvancedpostingform}}
     {{/forum.capabilities.create}}
 
     {{#state.hasdiscussions}}

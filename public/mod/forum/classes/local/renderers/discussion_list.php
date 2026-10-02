@@ -34,6 +34,7 @@ use mod_forum\local\factories\vault as vault_factory;
 use mod_forum\local\factories\url as url_factory;
 use mod_forum\local\managers\capability as capability_manager;
 use mod_forum\local\vaults\discussion_list as discussion_list_vault;
+use mod_forum\posting_form_preference;
 use renderer_base;
 use stdClass;
 use core\output\notification;
@@ -215,9 +216,11 @@ class discussion_list {
             'userid' => $user->id,
             'visiblediscussioncount' => count($discussions),
             'enablediscussioncreation' => $enablediscussioncreation,
+            'useadvancedpostingform' => posting_form_preference::use_advanced_form($user),
         ];
 
-        if ($forumview['forum']['capabilities']['create']) {
+        // The in-page form is only needed when it is the one that opens.
+        if ($forumview['forum']['capabilities']['create'] && !$forumview['useadvancedpostingform']) {
             $forumview['newdiscussionhtml'] = $this->get_discussion_form($user, $cm, $groupid);
         }
 
@@ -262,6 +265,7 @@ class discussion_list {
 
         $forumview = [
             'forum' => (array) $forumexporter->export($this->renderer),
+            'useadvancedpostingform' => posting_form_preference::use_advanced_form($user),
         ];
 
         return $this->renderer->render_from_template('mod_forum/forum_new_discussion_actionbar', $forumview);

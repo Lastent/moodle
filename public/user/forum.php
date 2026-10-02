@@ -40,6 +40,7 @@ $forumform = new user_edit_forum_form(null, array('userid' => $user->id));
 
 $user->markasreadonnotification = get_user_preferences('forum_markasreadonnotification', 1, $user->id);
 $user->useexperimentalui = get_user_preferences('forum_useexperimentalui', 0, $user->id);
+$user->postingform = get_user_preferences('forum_postingform', '', $user->id);
 $forumform->set_data($user);
 
 $redirect = new moodle_url("/user/preferences.php", array('userid' => $user->id));
@@ -50,6 +51,8 @@ if ($forumform->is_cancelled()) {
     $user->maildigest = $data->maildigest;
     $user->autosubscribe = $data->autosubscribe;
     $user->preference_forum_useexperimentalui = $data->useexperimentalui;
+    // Choosing the site default removes the preference, so later changes to the site default apply.
+    $user->preference_forum_postingform = empty($data->postingform) ? null : $data->postingform;
     if (!empty($CFG->forum_trackreadposts)) {
         $user->trackforums = $data->trackforums;
         if (property_exists($data, 'markasreadonnotification')) {

@@ -27,6 +27,7 @@ namespace mod_forum\local\renderers;
 defined('MOODLE_INTERNAL') || die();
 
 use mod_forum\local\builders\exported_posts as exported_posts_builder;
+use mod_forum\posting_form_preference;
 use renderer_base;
 use stdClass;
 
@@ -105,7 +106,10 @@ class posts {
 
         return $this->renderer->render_from_template(
             $this->template,
-            ['posts' => array_values($exportedposts)]
+            [
+                'posts' => array_values($exportedposts),
+                'useadvancedpostingform' => posting_form_preference::use_advanced_form($user),
+            ]
         );
     }
 }

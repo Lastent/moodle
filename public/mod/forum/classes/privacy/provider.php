@@ -153,6 +153,10 @@ class provider implements
         $items->add_user_preference('markasreadonnotification', 'privacy:metadata:preference:markasreadonnotification');
         $items->add_user_preference('forum_discussionlistsortorder',
             'privacy:metadata:preference:forum_discussionlistsortorder');
+        $items->add_user_preference(
+            \mod_forum\posting_form_preference::PREFERENCE,
+            'privacy:metadata:preference:forum_postingform',
+        );
 
         return $items;
     }
@@ -497,6 +501,17 @@ class provider implements
         }
         writer::export_user_preference('mod_forum', 'forum_discussionlistsortorder',
             $discussionlistsortorder, $discussionlistsortorderdescription);
+
+        $postingform = get_user_preferences(\mod_forum\posting_form_preference::PREFERENCE, null, $userid);
+        if ($postingform !== null) {
+            $postingformoptions = \mod_forum\posting_form_preference::get_options();
+            writer::export_user_preference(
+                'mod_forum',
+                \mod_forum\posting_form_preference::PREFERENCE,
+                $postingform,
+                $postingformoptions[$postingform] ?? $postingform,
+            );
+        }
     }
 
 

@@ -38,14 +38,22 @@
             "urls": [{
                 "create": "http://localhost/mod/forum/post.php?forum=11"
             }]
-        }
+        },
+        "useadvancedpostingform": false
     }
 }}
 
 {{#forum.capabilities.create}}
-    <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseAddForm">
-        {{#str}}addanewdiscussion, forum{{/str}}
-    </a>
+    {{#useadvancedpostingform}}
+        <a class="btn btn-primary" href="{{forum.urls.create}}">
+            {{#str}}addanewdiscussion, forum{{/str}}
+        </a>
+    {{/useadvancedpostingform}}
+    {{^useadvancedpostingform}}
+        <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseAddForm">
+            {{#str}}addanewdiscussion, forum{{/str}}
+        </a>
+    {{/useadvancedpostingform}}
 {{/forum.capabilities.create}}
 {{^forum.capabilities.create}}
     {{#forum.capabilities.selfenrol}}
