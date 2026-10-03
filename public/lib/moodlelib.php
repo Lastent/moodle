@@ -2516,9 +2516,9 @@ function require_login($courseorid = null, $autologinguest = true, $cm = null, $
                     // We need to override the navigation URL as the course won't have been added to the navigation and thus
                     // the navigation will mess up when trying to find it.
                     navigation_node::override_active_url(new moodle_url('/'));
-                    notice(get_string('coursehidden'), $CFG->wwwroot .'/');
+                    notice(get_string('coursehidden'), $CFG->wwwroot . '/');
                 } else {
-                    $blockedcourses = enrol_get_uncompleted_dependant_courses([$course->id => $course], true);
+                    $blockedcourses = enrol_get_uncompleted_dependant_courses([$course->id => $course]);
                     if (!empty($blockedcourses)) {
                         // The course depends on other courses that haven't been completed yet.
                         if ($preventredirect) {
@@ -2528,24 +2528,22 @@ function require_login($courseorid = null, $autologinguest = true, $cm = null, $
                         // We need to override the navigation URL as the course won't have been added to the navigation and thus
                         // the navigation will mess up when trying to find it.
                         navigation_node::override_active_url(new moodle_url('/'));
-                        $message = 'coursewithalldependencies';
                         $blockedcourse = reset($blockedcourses);
+                        $message = 'coursewithalldependencies';
                         if ($blockedcourse['completionmethod'] == COMPLETION_AGGREGATION_ANY) {
-                             $message = 'coursewithanydependencies';
+                            $message = 'coursewithanydependencies';
                         }
 
-                        // Get the dependant courses information, to display them to the users.
-                        $blockedcourses = $DB->get_records_list('course', 'id', array_values($blockedcourse['courses']));
-                        $blockedcoursesstring = html_writer::start_tag('ul');;
-                        foreach ($blockedcourses as $course) {
-                            $courselink = \html_writer::link(
-                                new \moodle_url('/course/view.php', ['id' => $course->id]),
-                                format_string($course->fullname) .' [' . format_string($course->shortname) . ']'
+                        // List the courses to complete first, linking to each one.
+                        $links = [];
+                        foreach ($DB->get_records_list('course', 'id', $blockedcourse['courses'], 'sortorder') as $prerequisite) {
+                            $prerequisitecontext = context_course::instance($prerequisite->id);
+                            $links[] = html_writer::link(
+                                new moodle_url('/course/view.php', ['id' => $prerequisite->id]),
+                                format_string($prerequisite->fullname, true, ['context' => $prerequisitecontext]),
                             );
-                            $blockedcoursesstring .= html_writer::start_tag('li') . $courselink . html_writer::end_tag('li');
                         }
-                        $blockedcoursesstring .= html_writer::end_tag('ul');
-                        notice(get_string($message, 'core', $blockedcoursesstring), $CFG->wwwroot .'/');
+                        notice(get_string($message, 'core', html_writer::alist($links)), $CFG->wwwroot . '/');
                     }
                 }
             }

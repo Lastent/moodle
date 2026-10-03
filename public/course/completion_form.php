@@ -163,6 +163,7 @@ class course_completion_form extends moodleform {
                 ];
                 $courseagg = new completion_aggregation($aggdata);
                 $mform->addElement('checkbox', 'course_blockaccess', get_string('courseblockaccess', 'core_completion'));
+                $mform->addHelpButton('course_blockaccess', 'courseblockaccess', 'core_completion');
                 $mform->setDefault('course_blockaccess', $courseagg->value);
             }
         } else {

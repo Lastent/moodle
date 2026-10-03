@@ -821,16 +821,13 @@ function enrol_get_my_courses($fields = null, $sort = null, $limit = 0, $coursei
 
     $courses = $DB->get_records_sql($sql, $params, $offset, $limit);
 
-    $blockedcourses = [];
-    if (!empty($courses)) {
-        $blockedcourses = enrol_get_uncompleted_dependant_courses($courses, false, $offset, $limit);
-    }
+    $blockedcourses = enrol_get_uncompleted_dependant_courses($courses);
 
     // preload contexts and check visibility
     foreach ($courses as $id=>$course) {
         context_helper::preload_from_record($course);
-        // If course is not visible or it depends on any other course that is blocked because a dependant course needs to be
-        // completed first.
+        // Courses that are hidden, or that need other courses to be completed first, are only listed for users who can
+        // view hidden courses.
         if (!$course->visible || array_key_exists($id, $blockedcourses)) {
             if (!$context = context_course::instance($id, IGNORE_MISSING)) {
                 unset($courses[$id]);
@@ -850,92 +847,58 @@ function enrol_get_my_courses($fields = null, $sort = null, $limit = 0, $coursei
 }
 
 /**
- * Returns the list of courses that the current $USER shouldn't be able to access because other courses need to be completed
- * before.
+ * Get the courses that a user cannot access yet because other courses must be completed first.
  *
- * @param array $courses The dependant courses will be checked only with the given courses.
- * @param integer $offset
- * @param integer $limit
- * @return array List of uncompleted dependant courses ids.
+ * A course has such prerequisites when its "Completion of other courses" course completion condition restricts access
+ * until the selected courses are completed. Nothing is restricted unless both completion tracking and the experimental
+ * enablerestrictcoursesbasedoncompletion setting are enabled.
+ *
+ * @param stdClass[] $courses The courses to check, keyed by course id.
+ * @param int|null $userid The user to check, or null for the current user.
+ * @return array[] The courses the user cannot access yet, keyed by course id. Each one has 'completionmethod'
+ *     (COMPLETION_AGGREGATION_ALL or COMPLETION_AGGREGATION_ANY) and 'courses' (the ids of the courses to complete).
  */
-function enrol_get_uncompleted_dependant_courses(
-    array $courses,
-    bool $includeallcourses = false,
-    int $offset = 0,
-    int $limit = 0
-): array {
+function enrol_get_uncompleted_dependant_courses(array $courses, ?int $userid = null): array {
     global $CFG, $USER, $DB;
 
-    if (empty($CFG->enablerestrictcoursesbasedoncompletion) || empty($CFG->enablecompletion)) {
-        // Early return if the experimental setting or completion are not enabled, because there won't be uncompleted
-        // dependant courses.
+    if (empty($CFG->enablerestrictcoursesbasedoncompletion) || empty($CFG->enablecompletion) || empty($courses)) {
         return [];
     }
 
     require_once($CFG->libdir . '/completionlib.php');
 
-    $courseidsql = '';
-    $coursesparams = [];
-    if (!empty($courses)) {
-        list ($coursessql, $coursesparams) = $DB->get_in_or_equal(array_keys($courses), SQL_PARAMS_NAMED);
-        $courseidsql = " AND ccc.course $coursessql";
-    }
-    // Courses depending on another courses.
-    $sql = "SELECT DISTINCT ccc.id, ccc.course, ccc.courseinstance, ca.method, ca.value as blockaccess, cc.timecompleted
+    [$coursesql, $params] = $DB->get_in_or_equal(array_keys($courses), SQL_PARAMS_NAMED);
+    $sql = "SELECT ccc.id, ccc.course, ccc.courseinstance, ca.method, cc.timecompleted
               FROM {course_completion_criteria} ccc
-        INNER JOIN {course_completion_aggr_methd} ca ON ccc.course = ca.course AND ca.criteriatype = :criteriatype1
+              JOIN {course_completion_aggr_methd} ca ON ca.course = ccc.course AND ca.criteriatype = ccc.criteriatype
          LEFT JOIN {course_completions} cc ON cc.course = ccc.courseinstance AND cc.userid = :userid
-             WHERE ccc.criteriatype = :criteriatype2 $courseidsql";
-    $params = [
-        'criteriatype1' => COMPLETION_CRITERIA_TYPE_COURSE,
-        'criteriatype2' => COMPLETION_CRITERIA_TYPE_COURSE,
-        'userid' => $USER->id,
+             WHERE ccc.criteriatype = :criteriatype
+                   AND ca.value = :blockaccess
+                   AND ccc.course $coursesql";
+    $params += [
+        'userid' => $userid ?? $USER->id,
+        'criteriatype' => COMPLETION_CRITERIA_TYPE_COURSE,
+        'blockaccess' => 1,
     ];
-    $params = array_merge($params, $coursesparams);
-    $allcourses = $DB->get_records_sql($sql, $params, $offset, $limit);
 
-    $allcoursesbykey = [];
-    foreach ($allcourses as $course) {
-        $allcoursesbykey[$course->course][] = $course;
+    $prerequisites = [];
+    foreach ($DB->get_records_sql($sql, $params) as $record) {
+        $prerequisites[$record->course]['completionmethod'] = (int) $record->method;
+        $prerequisites[$record->course]['completed'][(int) $record->courseinstance] = !empty($record->timecompleted);
     }
 
     $blockedcourses = [];
-    foreach ($allcoursesbykey as $key => $coursesbykey) {
-        $found = null;
-        $depcourses = [];
-        foreach ($coursesbykey as $course) {
-            if (empty($course->blockaccess)) {
-                // If the course access is not blocked, this course can be skipped.
-                break;
-            }
-            $depcourses[] = $course->courseinstance;
-            switch ($course->method) {
-                case COMPLETION_AGGREGATION_ANY:
-                    if ($course->timecompleted != null) {
-                        $found = true;
-                        if (!$includeallcourses) {
-                            break 2;
-                        }
-                    } else if ($includeallcourses && !$found) {
-                        $found = false;
-                    }
-                    break;
-                case COMPLETION_AGGREGATION_ALL:
-                    if ($course->timecompleted != null && (!$includeallcourses || $found || $found === null)) {
-                        $found = true;
-                    } else {
-                        $found = false;
-                        if (!$includeallcourses) {
-                            break 2;
-                        }
-                    }
-                    break;
-            }
+    foreach ($prerequisites as $courseid => $prerequisite) {
+        $completedcount = count(array_filter($prerequisite['completed']));
+        if ($prerequisite['completionmethod'] == COMPLETION_AGGREGATION_ANY) {
+            $blocked = $completedcount === 0;
+        } else {
+            $blocked = $completedcount < count($prerequisite['completed']);
         }
-        if (empty($found) && !empty($depcourses)) {
-            $blockedcourses[$key] = [
-                'completionmethod' => $course->method,
-                'courses' => $depcourses,
+        if ($blocked) {
+            $blockedcourses[$courseid] = [
+                'completionmethod' => $prerequisite['completionmethod'],
+                'courses' => array_keys($prerequisite['completed']),
             ];
         }
     }
@@ -1238,12 +1201,6 @@ function enrol_get_all_users_courses($userid, $onlyactive = false, $fields = nul
     $params['userid']  = $userid;
 
     $courses = $DB->get_records_sql($sql, $params);
-
-    // Exclude courses depending on other courses that need to be completed before.
-    $blockedcourses = enrol_get_uncompleted_dependant_courses($courses);
-    foreach ($blockedcourses as $courseid => $noutused) {
-        unset($courses[$courseid]);
-    }
 
     return $courses;
 }

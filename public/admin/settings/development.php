@@ -39,9 +39,12 @@ if ($hassiteconfig) { // Speedup for non-admins, add all caps used on this page.
         new lang_string('enablecommunicationsubsystem_desc', 'core_admin'), 0));
 
     // Restrict course availability based on prerequisite course completion.
-    $temp->add(new admin_setting_configcheckbox('enablerestrictcoursesbasedoncompletion',
+    $temp->add(new admin_setting_configcheckbox(
+        'enablerestrictcoursesbasedoncompletion',
         new lang_string('enablerestrictcoursesbasedoncompletion', 'core_admin'),
-        new lang_string('enablerestrictcoursesbasedoncompletion_desc', 'core_admin'), 0));
+        new lang_string('enablerestrictcoursesbasedoncompletion_desc', 'core_admin'),
+        0,
+    ));
 
     $ADMIN->add('experimental', $temp);
 

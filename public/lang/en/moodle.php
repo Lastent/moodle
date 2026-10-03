@@ -393,8 +393,6 @@ $string['coursehelpnewsitemsnumber'] = 'Number of recent announcements appearing
 $string['coursehelpnumberweeks'] = 'Number of sections in the course (applies to certain course formats only).';
 $string['coursehelpshowgrades'] = 'Enable the display of the gradebook. It does not prevent grades from being displayed within the individual activities.';
 $string['coursehidden'] = 'This course is currently unavailable to students';
-$string['coursewithanydependencies'] = 'This course is currently unavailable to students. Any of the following courses need to be completed before: {$a}';
-$string['coursewithalldependencies'] = 'This course is currently unavailable to students. All the following courses need to be completed before: {$a}';
 $string['courseoverviewfiles'] = 'Course image';
 $string['courseoverviewfilesext'] = 'Course image file extensions';
 $string['courseoverviewfileslimit'] = 'Course image files limit';
@@ -450,6 +448,8 @@ $string['courseupdates'] = 'Course updates';
 $string['coursevisibility'] = 'Course visibility';
 $string['coursevisibility_help'] = '* Show: The course appears in the list of courses and students can access it.
 * Hide: Access is restricted to teachers and other users with the capability to view hidden courses.';
+$string['coursewithalldependencies'] = 'This course is not available yet. You need to complete all of these courses first: {$a}';
+$string['coursewithanydependencies'] = 'This course is not available yet. You need to complete at least one of these courses first: {$a}';
 $string['create'] = 'Create';
 $string['createaccount'] = 'Create my new account';
 $string['createcategory'] = 'Create category';

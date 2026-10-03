@@ -1,0 +1,25 @@
+issueNumber: MDL-22648
+notes:
+  core_enrol:
+    - message: >-
+        The new `enrol_get_uncompleted_dependant_courses()` function returns the
+        courses a user cannot access yet because the courses selected in their
+        "Completion of other courses" course completion condition must be
+        completed first. This only applies when completion tracking and the new
+        experimental `enablerestrictcoursesbasedoncompletion` setting are
+        enabled, and the teacher has chosen to restrict access.
+
+
+        When it applies, `enrol_get_my_courses()` leaves these courses out for
+        users who cannot view hidden courses, in the same way as hidden courses.
+        `enrol_get_all_users_courses()` is unchanged and still returns them.
+      type: improved
+  core:
+    - message: >-
+        `require_login()` now prevents access to a course whose prerequisite
+        courses the user has not completed, when the experimental
+        `enablerestrictcoursesbasedoncompletion` setting is enabled. With
+        `$preventredirect` it throws a `require_login_exception` with the debug
+        information "Course has dependencies". Users who can view hidden
+        courses are not affected.
+      type: changed
